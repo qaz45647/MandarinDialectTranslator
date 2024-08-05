@@ -1,0 +1,5 @@
+Flask==3.0.3
+google-generativeai
+spacy==3.7.5
+pandas==2.2.2
+zh-core-web-trf @ https://github.com/explosion/spacy-models/releases/download/zh_core_web_trf-3.7.0/zh_core_web_trf-3.7.0-py3-none-any.whl

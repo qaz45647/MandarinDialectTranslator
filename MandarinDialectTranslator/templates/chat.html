@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大陸用語轉換</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body, html {
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #ffffff;
+        }
+        #chat-container {
+            max-width: 480px;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #e6e6e6;
+            border-right: 1px solid #e6e6e6;
+        }
+        #chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #36b24a;
+            color: #fff;
+            padding: 15px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        #chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #b2ecc4;
+        }
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .user-message {
+            justify-content: flex-end;
+        }
+        .bot-message {
+            justify-content: flex-start;
+        }
+        .message-content {
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .user-message .message-content {
+            background-color: #36b24a;
+            color: white;
+        }
+        .bot-message .message-content {
+            background-color: white;
+            margin-left: 10px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 10px;
+            flex-shrink: 0; 
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .bot-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .bot-name {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        #input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #e6e6e6;
+        }
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            background-color: white;
+        }
+        #send-button {
+            background-color: #36b24a;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #send-button:hover {
+            background-color: #2f9940;
+        }
+
+        #download-button {
+            background-color: #fff;
+            color: #36b24a;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        #download-button:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-header">
+            <span>大陸用語轉換</span>
+            <button id="download-button" onclick="downloadChatHistory()">下載聊天紀錄</button>
+        </div>
+        <div id="chat-messages"></div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="輸入訊息...">
+            <button id="send-button" onclick="sendMessage()">發送</button>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = [];
+
+        function sendMessage() {
+            var userMessage = $('#user-input').val();
+            if (userMessage.trim() === '') return;
+
+            appendMessage('user', userMessage);
+            chatHistory.push({type: 'user', message: userMessage});
+            $('#user-input').val('');
+
+            $.ajax({
+                url: '/chat',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({message: userMessage}),
+                success: function(response) {
+                    appendMessage('bot', response.response);
+                    chatHistory.push({type: 'bot', message: response.response});
+                }
+            });
+        }
+
+        function appendMessage(sender, message) {
+            var messageClass = sender === 'user' ? 'user-message' : 'bot-message';
+            var messageHtml = '<div class="message ' + messageClass + '">';
+            
+            if (sender === 'bot') {
+                messageHtml += '<div class="avatar"><img src="/static/police.jpg" alt="支語警察"></div>';
+                messageHtml += '<div class="bot-info">';
+                messageHtml += '<div class="bot-name">支語警察</div>';
+                messageHtml += '<div class="message-content">' + message + '</div>';
+                messageHtml += '</div>';
+            } else {
+                messageHtml += '<div class="message-content">' + message + '</div>';
+            }
+            
+            messageHtml += '</div>';
+            
+            $('#chat-messages').append(messageHtml);
+            $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
+        }
+
+
+        $('#user-input').keypress(function(e) {
+            if (e.which == 13) {
+                sendMessage();
+                return false;
+            }
+        });
+
+
+        function downloadChatHistory() {
+            let csvContent = "\uFEFF大陸用語,台灣用語\n";  // Add BOM at the beginning
+            
+            for (let i = 0; i < chatHistory.length; i += 2) {
+                if (i + 1 < chatHistory.length) {
+                    let userMessage = chatHistory[i].message.replace(/"/g, '""');  // Escape double quotes
+                    let botMessage = chatHistory[i + 1].message.replace(/"/g, '""');
+                    csvContent += `"${userMessage}","${botMessage}"\n`;
+                }
+            }
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "chat_history.csv");
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+    </script>
+</body>
+</html>
