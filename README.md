@@ -70,7 +70,7 @@ python app.py
 
 ### Modify dataset
 
-使用者可以於ch.csv中新增或修改資料。
+翻譯的準確性取決於LLM本身的知識及資料集的內容。欲擴充資料集，使用者可於ch.csv中進行新增或修改資料。
 
 ### **Implemented Components**
 
