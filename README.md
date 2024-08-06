@@ -5,7 +5,7 @@
 # **Introduction**
 
 
-**MandarinDialectTranslator**是一個結合LLM及RAG來實現的翻譯大陸用語的視覺化界面。使用者可以輕易地使用此程式來翻譯大陸用語及下載聊天紀錄，用以製作大陸用語翻譯資料集。
+**MandarinDialectTranslator**是一個結合LLM及RAG來實現的翻譯大陸用語的視覺化界面。使用者可以輕易地使用此程式來翻譯大陸用語及下載聊天紀錄。
 
 ### **Function**
 
