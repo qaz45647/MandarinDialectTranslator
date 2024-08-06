@@ -60,7 +60,8 @@ pip install -r requirements.txt
 cd MandarinDialectTranslator
 ```
 
-**Set gemini key(api_key.txt)**
+**Set gemini key**
+在檔案api_key.txt中放入自己的api key
 
 **Execute app.py:**
 
