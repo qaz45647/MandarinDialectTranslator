@@ -61,6 +61,8 @@ cd MandarinDialectTranslator
 ```
 
 **Set gemini key**
+
+
 在檔案api_key.txt中放入自己的api key
 
 **Execute app.py:**
